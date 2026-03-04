@@ -1,0 +1,105 @@
+import csv
+import math
+from collections import Counter
+
+# Load dataset
+def load_data(filename):
+    with open(filename, 'r') as file:
+        data = list(csv.reader(file))
+    headers = data[0]
+    rows = data[1:]
+    return headers, rows
+
+
+# Entropy calculation
+def entropy(rows):
+    labels = [row[-1] for row in rows]
+    counts = Counter(labels)
+    total = len(rows)
+    ent = 0
+    for count in counts.values():
+        p = count / total
+        ent -= p * math.log2(p)
+    return ent
+
+
+# Information Gain
+def information_gain(rows, col_index):
+    total_entropy = entropy(rows)
+    values = set(row[col_index] for row in rows)
+    weighted_entropy = 0
+
+    for value in values:
+        subset = [row for row in rows if row[col_index] == value]
+        weighted_entropy += (len(subset) / len(rows)) * entropy(subset)
+
+    return total_entropy - weighted_entropy
+
+
+# ID3 Algorithm
+def id3(headers, rows):
+
+    labels = [row[-1] for row in rows]
+
+    # If all same class
+    if len(set(labels)) == 1:
+        return labels[0]
+
+    # If no attributes left
+    if len(headers) == 1:
+        return Counter(labels).most_common(1)[0][0]
+
+    gains = [information_gain(rows, i) for i in range(len(headers) - 1)]
+    best_index = gains.index(max(gains))
+    best_attribute = headers[best_index]
+
+    tree = {best_attribute: {}}
+
+    values = set(row[best_index] for row in rows)
+
+    for value in values:
+        subset = [row for row in rows if row[best_index] == value]
+
+        if not subset:
+            tree[best_attribute][value] = Counter(labels).most_common(1)[0][0]
+        else:
+            new_headers = headers[:best_index] + headers[best_index+1:]
+            new_rows = [row[:best_index] + row[best_index+1:] for row in subset]
+            subtree = id3(new_headers, new_rows)
+            tree[best_attribute][value] = subtree
+
+    return tree
+
+
+# Classify new sample
+def classify(tree, headers, sample):
+    if not isinstance(tree, dict):
+        return tree
+
+    root = next(iter(tree))
+    index = headers.index(root)
+    value = sample[index]
+    subtree = tree[root][value]
+
+    new_headers = headers[:index] + headers[index+1:]
+    new_sample = sample[:index] + sample[index+1:]
+
+    return classify(subtree, new_headers, new_sample)
+
+
+# -------- MAIN --------
+
+headers, rows = load_data("playtennis.csv")
+
+tree = id3(headers, rows)
+
+print("\nDecision Tree:")
+print(tree)
+
+# New sample
+sample = ["Sunny", "Cool", "High", "Strong"]
+
+prediction = classify(tree, headers[:-1], sample)
+
+print("\nNew Sample:", sample)
+print("Prediction:", prediction)
