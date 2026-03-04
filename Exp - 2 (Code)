@@ -1,0 +1,121 @@
+import csv
+import copy
+
+# ----------------------------
+# Utility Functions
+# ----------------------------
+
+def read_csv(filename):
+    with open(filename, 'r') as file:
+        data = list(csv.reader(file))
+    return data[1:]   # remove header
+
+
+def is_more_general(h1, h2):
+    more_general = False
+    for x, y in zip(h1, h2):
+        if x == '?' and y != '?':
+            more_general = True
+        elif x != '?' and y != x:
+            return False
+    return more_general
+
+
+def is_consistent(h, example):
+    return all(h[i] == '?' or h[i] == example[i] for i in range(len(h)))
+
+
+def min_generalizations(h, example):
+    new_h = h.copy()
+    for i in range(len(h)):
+        if h[i] == '0':
+            new_h[i] = example[i]
+        elif h[i] != example[i]:
+            new_h[i] = '?'
+    return new_h
+
+
+def min_specializations(h, domains, example):
+    specializations = []
+    for i in range(len(h)):
+        if h[i] == '?':
+            for value in domains[i]:
+                if value != example[i]:
+                    new_h = h.copy()
+                    new_h[i] = value
+                    specializations.append(new_h)
+        elif h[i] != '0':
+            new_h = h.copy()
+            new_h[i] = '0'
+            specializations.append(new_h)
+    return specializations
+
+
+# ----------------------------
+# Candidate Elimination
+# ----------------------------
+
+def candidate_elimination(data):
+
+    num_attr = len(data[0]) - 1
+
+    # Get domains of attributes
+    domains = [set() for _ in range(num_attr)]
+    for row in data:
+        for i in range(num_attr):
+            domains[i].add(row[i])
+
+    # Initialize S and G
+    S = ['0'] * num_attr
+    G = [['?'] * num_attr]
+
+    print("Initial S:", S)
+    print("Initial G:", G)
+
+    for row in data:
+        attributes = row[:-1]
+        label = row[-1].lower()
+
+        if label == "yes":   # Positive example
+
+            G = [g for g in G if is_consistent(g, attributes)]
+
+            S = min_generalizations(S, attributes)
+
+            G = [g for g in G if is_more_general(g, S) or g == S]
+
+        else:   # Negative example
+
+            new_G = []
+            for g in G:
+                if is_consistent(g, attributes):
+                    specializations = min_specializations(g, domains, attributes)
+                    for spec in specializations:
+                        if is_more_general(spec, S):
+                            new_G.append(spec)
+                else:
+                    new_G.append(g)
+
+            # Remove duplicates
+            G = []
+            for g in new_G:
+                if g not in G:
+                    G.append(g)
+
+        print("\nAfter example:", row)
+        print("S:", S)
+        print("G:", G)
+
+    return S, G
+
+
+# ----------------------------
+# MAIN
+# ----------------------------
+
+data = read_csv("enjoysport.csv")
+
+final_S, final_G = candidate_elimination(data)
+
+print("\nFinal Specific Hypothesis (S):", final_S)
+print("Final General Hypothesis (G):", final_G)
