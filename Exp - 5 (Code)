@@ -1,0 +1,43 @@
+import math
+from collections import Counter
+
+# Training dataset
+data = [
+    [158, 58, "Female"],
+    [170, 65, "Male"],
+    [165, 59, "Female"],
+    [180, 80, "Male"],
+    [175, 75, "Male"],
+    [160, 60, "Female"]
+]
+
+# New sample to classify
+new_point = [168, 62]
+
+# Value of K
+k = 3
+
+# Function to calculate Euclidean distance
+def distance(p1, p2):
+    return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
+
+# Calculate distance from new point
+distances = []
+
+for point in data:
+    dist = distance(new_point, point)
+    distances.append((dist, point[2]))
+
+# Sort by distance
+distances.sort()
+
+# Get K nearest neighbors
+neighbors = distances[:k]
+
+# Voting
+labels = [neighbor[1] for neighbor in neighbors]
+prediction = Counter(labels).most_common(1)
+
+print("New Data Point:", new_point)
+print("Nearest Neighbors:", neighbors)
+print("Predicted Class:", prediction[0][0])
