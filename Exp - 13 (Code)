@@ -1,0 +1,36 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Sample dataset
+data = {
+    "Year": [2015, 2016, 2017, 2018, 2019, 2020],
+    "Mileage": [50000, 40000, 35000, 30000, 20000, 15000],
+    "EngineSize": [1.2, 1.4, 1.6, 1.8, 2.0, 2.2],
+    "Price": [500000, 550000, 600000, 650000, 700000, 750000]
+}
+
+df = pd.DataFrame(data)
+
+# Features and target
+X = df[["Year", "Mileage", "EngineSize"]]
+y = df["Price"]
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Train model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict price for test data
+predicted_prices = model.predict(X_test)
+
+print("Actual Prices:", list(y_test))
+print("Predicted Prices:", predicted_prices)
+
+# Predict price for a new car
+new_car = [[2021, 12000, 2.2]]
+predicted_price = model.predict(new_car)
+
+print("\nPredicted price for new car:", predicted_price[0])
