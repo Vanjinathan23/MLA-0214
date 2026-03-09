@@ -1,0 +1,21 @@
+import numpy as np
+from sklearn.mixture import GaussianMixture
+
+# Sample dataset
+X = np.array([[1], [2], [3], [10], [11], [12]])
+
+# Create Gaussian Mixture Model
+gmm = GaussianMixture(n_components=2)
+
+# Train the model
+gmm.fit(X)
+
+# Predict cluster labels
+labels = gmm.predict(X)
+
+print("Data points:\n", X)
+print("Cluster labels:\n", labels)
+
+# Model parameters
+print("\nMeans:", gmm.means_)
+print("Covariances:", gmm.covariances_)
