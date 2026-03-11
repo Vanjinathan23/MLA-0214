@@ -1,0 +1,24 @@
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+# Sample dataset (Month vs Sales)
+data = {
+    "Month": [1, 2, 3, 4, 5, 6],
+    "Sales": [200, 220, 250, 270, 300, 320]
+}
+
+df = pd.DataFrame(data)
+
+# Features and target
+X = df[["Month"]]
+y = df["Sales"]
+
+# Train model
+model = LinearRegression()
+model.fit(X, y)
+
+# Predict future sales
+future_month = [[7]]
+predicted_sales = model.predict(future_month)
+
+print("Predicted sales for month 7:", predicted_sales[0])
