@@ -1,0 +1,43 @@
+from collections import defaultdict
+
+data = [
+    ['Old', 'High', 'Severe', 'Yes'],
+    ['Middle', 'Medium', 'Moderate', 'Yes'],
+    ['Young', 'Low', 'Mild', 'No'],
+    ['Middle', 'Low', 'Mild', 'No']
+]
+
+# Count class frequencies
+class_count = defaultdict(int)
+feature_count = {}
+
+for row in data:
+    label = row[-1]
+    class_count[label] += 1
+    
+    for i in range(len(row)-1):
+        key = (i, row[i], label)
+        feature_count[key] = feature_count.get(key, 0) + 1
+
+# Prediction
+test = ['Old', 'High', 'Severe']
+
+def predict(test):
+    probs = {}
+    total = len(data)
+    
+    for c in class_count:
+        prob = class_count[c] / total
+        
+        for i in range(len(test)):
+            count = feature_count.get((i, test[i], c), 0)
+            prob *= (count + 1) / (class_count[c] + len(data))  # Laplace smoothing
+        
+        probs[c] = prob
+    
+    return probs
+
+result = predict(test)
+
+print("Probabilities:", result)
+print("Prediction:", max(result, key=result.get))
