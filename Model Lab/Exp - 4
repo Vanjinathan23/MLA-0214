@@ -1,0 +1,37 @@
+import numpy as np
+
+
+X = np.array([
+    [2, 2, 2],  # Old, High, Severe
+    [1, 1, 1],  # Middle, Medium, Moderate
+    [0, 0, 0],  # Young, Low, Mild
+    [1, 0, 0]   # Middle, Low, Mild
+])
+
+y = np.array([1, 1, 0, 0])  # Yes=1, No=0
+
+# Initialize weights
+weights = np.zeros(3)
+bias = 0
+lr = 0.1
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+
+for epoch in range(1000):
+    z = np.dot(X, weights) + bias
+    pred = sigmoid(z)
+    
+    error = pred - y
+    
+    weights -= lr * np.dot(X.T, error) / len(y)
+    bias -= lr * np.mean(error)
+
+
+test = np.array([2, 2, 2])
+z = np.dot(test, weights) + bias
+prob = sigmoid(z)
+
+print("Probability:", prob)
+print("Prediction:", "Yes" if prob > 0.5 else "No")
