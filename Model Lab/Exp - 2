@@ -1,0 +1,45 @@
+
+data = [
+    ['Old', 'High', 'Severe', 'Yes'],
+    ['Middle', 'Medium', 'Moderate', 'Yes'],
+    ['Young', 'Low', 'Mild', 'No'],
+    ['Middle', 'Low', 'Mild', 'No']
+]
+
+S = ['0', '0', '0']
+G = [['?', '?', '?']]
+
+def consistent(h, x):
+    for i in range(len(h)):
+        if h[i] != '?' and h[i] != x[i]:
+            return False
+    return True
+
+for row in data:
+    x = row[:-1]
+    y = row[-1]
+
+    if y == 'Yes':
+        # Update S
+        for i in range(len(S)):
+            if S[i] == '0':
+                S[i] = x[i]
+            elif S[i] != x[i]:
+                S[i] = '?'
+
+        # Remove inconsistent G
+        G = [g for g in G if consistent(g, x)]
+
+    else:
+        new_G = []
+        for g in G:
+            if consistent(g, x):
+                for i in range(len(g)):
+                    if g[i] == '?':
+                        new_h = g.copy()
+                        new_h[i] = S[i]
+                        new_G.append(new_h)
+        G = new_G
+
+print("Specific Hypothesis S:", S)
+print("General Hypothesis G:", G)
