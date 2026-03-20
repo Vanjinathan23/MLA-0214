@@ -1,1 +1,19 @@
+data = [
+    ['Old', 'High', 'Severe', 'Yes'],
+    ['Middle', 'Medium', 'Moderate', 'Yes'],
+    ['Young', 'Low', 'Mild', 'No'],
+    ['Middle', 'Low', 'Mild', 'No']
+]
 
+# Initialize hypothesis
+hypothesis = ['0', '0', '0']
+
+for row in data:
+    if row[-1] == 'Yes':
+        for i in range(len(hypothesis)):
+            if hypothesis[i] == '0':
+                hypothesis[i] = row[i]
+            elif hypothesis[i] != row[i]:
+                hypothesis[i] = '?'
+
+print("Final Hypothesis:", hypothesis)
